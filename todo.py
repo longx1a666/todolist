@@ -2,7 +2,7 @@ from win10toast import ToastNotifier
 from datetime import date, timedelta
 import os, json
 
-FILE_PATH = "todo.json"
+FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "todo.json")
 
 
 def load_todos():
@@ -62,7 +62,9 @@ def list_todos(todos_dict, date_str=None):
 
 
 def mark_done(todo_id, todos_dict):
-    for day_todos in todos_dict.values():
+    today = date.today().isoformat()
+    # 优先查找今天的任务
+    for day_todos in [todos_dict.get(today, [])] + [v for k, v in todos_dict.items() if k != today]:
         for item in day_todos:
             if item["id"] == todo_id:
                 item["done"] = True
@@ -73,7 +75,9 @@ def mark_done(todo_id, todos_dict):
 
 
 def delete_todo(todo_id, todos_dict):
-    for day_todos in todos_dict.values():
+    today = date.today().isoformat()
+    # 优先查找今天的任务
+    for day_todos in [todos_dict.get(today, [])] + [v for k, v in todos_dict.items() if k != today]:
         for item in day_todos:
             if item["id"] == todo_id:
                 day_todos.remove(item)
